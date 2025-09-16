@@ -1,16 +1,16 @@
 # Spotify Data Engineering Project
 
-### Overview  
+## Overview  
 The goal of this project is to design a unified data platform that ingests Spotify data, stores it in a single Iceberg table format on AWS S3, and makes it queryable with AWS services, providing ACID transactions, schema evolution, and time travel with Apache Iceberg
 
-### Tech Stack
+## Tech Stack
 - **AWS Lambda** – Serverless batch data ingestion  
 - **Amazon S3 + Apache Iceberg** – Unified, scalable data lake storage  
 - **Amazon Athena** – Interactive ad-hoc SQL queries  
 - **AWS Glue** – Data cataloging and ETL orchestration  
 
 
-### prerequisite
+## Prerequisite
 - AWS account
 - Create user and access key for vs code login
 - Install AWS CLI and configure it with your credentials
@@ -22,7 +22,7 @@ aws --version
 aws configure
 ```
 
-### Setup Instructions
+## Setup Instructions
 1. Clone Repository
     ```bash
     git clone <repository_url>
