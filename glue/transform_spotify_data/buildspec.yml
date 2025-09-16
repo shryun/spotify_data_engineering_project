@@ -1,0 +1,26 @@
+version: 0.2
+
+env:
+  variables:
+    PROJECT_NAME: "spotify_project"
+    BUCKET_NAME: "spotify-scripts-216989135823" # replace with your bucket name
+    GLUE_JOB_NAME: "transform_spotify_data"
+
+pre-build:
+  commands:
+    - echo Uploading the script to S3...
+    - export SCRIPT_PATH="spotify_project/glue/$GLUE_JOB_NAME"
+    - aws s3 cp --recursive $SCRIPT_PATH s3://$BUCKET_NAME/$PROJECT_NAME/glue/$GLUE_JOB_NAME # upload all scripts to s3
+
+build:
+  commands:
+    - echo Checking if AWS Glue job exists...
+    - export GLUE_JOB_CONFIG="$SCRIPT_PATH/glue_job_config.json"
+    - JOB_EXISTS=$(aws glue get-job --job-name $GLUE_JOB_NAME 2>/dev/null || echo "NOT_FOUND")
+    - if [ "$JOB_EXISTS" = "NOT_FOUND" ]; then
+        echo Glue job not found. Creating a new job...;
+        aws glue create-job --name $GLUE_JOB_NAME --cli-input-json file://$GLUE_JOB_CONFIG;
+      else
+        echo Glue job exists. Updating the job...;
+        aws glue update-job --job-name $GLUE_JOB_NAME --job-update file://$GLUE_JOB_CONFIG;
+      fi

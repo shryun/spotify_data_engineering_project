@@ -1,0 +1,26 @@
+{
+  "track_id": "string",
+  "track_name": "string",
+  "track_uri": "string",
+  "duration_ms": "integer",
+  "explicit": "boolean",
+  "preview_url": "string",
+  "popularity": "integer",
+  "external_ids": {
+    "type": "object",
+    "properties": {
+      "isrc": { "type": "string" },
+      "ean": { "type": "string" },
+      "upc": { "type": "string" }
+    },
+    "additionalProperties": false
+  },
+  "external_urls": {
+    "type": "object",
+    "properties": {
+      "spotify": { "type": "string" }
+    },
+    "additionalProperties": true
+  },
+  "restrictions_reason": "string"
+}

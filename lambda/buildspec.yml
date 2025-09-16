@@ -1,0 +1,50 @@
+# use CodeBuild to pack Python Lambda, upload to S3 and create/update lambda function & dependencies automatically
+# CI/CD pipeline: requirements.txt → zip → S3 → Lambda
+version: 0.2
+
+env:
+  variables:
+    PROJECT_NAME: "spotify_project"
+    PATH_SCRIPT: "spotify_project/lambda"
+    BUCKET_NAME: "spotify-lambda-artifacts-${var.account_id}"
+    LAMBDA_FUNCTION_NAME: "get_spotify_api_data"
+    LAMBDA_RUNTIME: "python3.9"
+    LAMBDA_HANDLER: "get_spotify_api_data.lambda_handler"
+    LAMBDA_ROLE: "arn:aws:iam::216989135823:role/lambda-execution-role" # replace with your role arn
+    LAMBDA_MEMORY_SIZE: 128
+    LAMBDA_TIMEOUT: 600
+
+  phases:
+    install:
+      commands:
+        - apt-get update
+        - apt-get install -y zip
+        - pip install --upgrade pip
+        - pip install -r $PATH_SCRIPT/requirements.txt -t .
+    pre_build:
+      commands:
+        - echo Installing dependencies...
+        - pip install -r $PATH_SCRIPT/requirements.txt -t $PATH_SCRIPT/. 
+        - echo Packaging the folder
+        - cd $PATH_SCRIPT
+        - zip -r lambda.zip . # zip all files in the current directory
+        - cd .. # go back to root directory
+        - echo $(ls $PATH_SCRIPT) # check if lambda.zip is created
+    build:
+      commands:
+        - aws s3 cp $PATH_SCRIPT/lambda.zip s3://$BUCKET_NAME/$PROJECT_NAME/lambda/lambda.zip # create/update lambda will get from here
+    post_build:
+      commands:
+        - echo "Checking if Lambda function exists..."
+        - FUNCTION_EXISTS=$(aws lambda get-function --function-name $LAMBDA_FUNCTION_NAME --query 'Configuration.FunctionName' --output text 2> /dev/null  || echo "NOT_FOUND")
+        - echo $FUNCTION_EXISTS
+        - if [ "$FUNCTION_EXISTS" = "NOT_FOUND" ]; then
+            echo "Lambda function does not exist, creating...";
+            aws lambda create-function --function-name $LAMBDA_FUNCTION_NAME --runtime $LAMBDA_RUNTIME --role $LAMBDA_ROLE --handler $LAMBDA_HANDLER  --memory $LAMBDA_MEMORY_SIZE --timeout $LAMBDA_TIMEOUT --code="S3Bucket=$BUCKET_NAME,S3Key=$PROJECT_NAME/lambda/lambda.zip";
+          else
+            echo "Lambda function exists, updating code and configuration...";
+            aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --s3-bucket $BUCKET_NAME --s3-key $PROJECT_NAME/lambda/lambda.zip;
+            aws lambda wait function-updated --function-name $LAMBDA_FUNCTION_NAME;
+            aws lambda update-function-configuration --function-name $LAMBDA_FUNCTION_NAME --memory-size $LAMBDA_MEMORY_SIZE --timeout $LAMBDA_TIMEOUT;
+            echo "Lambda function code and configuration updated successfully";
+          fi

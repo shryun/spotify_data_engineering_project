@@ -1,0 +1,16 @@
+{
+  "snapshot_date": "date",            // date of playlist snapshot (PK component)
+  "country_code": "string",           // ISO country code, e.g. "US", "CA" (PK component)
+  "playlist_id": "string",            // Spotify playlist id for that country (FK to playlist_dim if needed)
+  "position": "integer",              // 1–50 rank in playlist (PK component)
+
+  "track_id": "string",               // FK → dim_tracks
+  "album_id": "string",               // FK → dim_albums
+  "artist_ids": ["string"],           // FK → dim_artists (many-to-many, handled with bridge if strict)
+
+  "popularity": "integer",            // Spotify metric (0–100)
+  "play_count": "integer",            // if available, else null
+  "is_local": "boolean",
+
+  "ingested_at": "timestamp"          // ETL load time
+}

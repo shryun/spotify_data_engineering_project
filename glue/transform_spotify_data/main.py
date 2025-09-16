@@ -1,0 +1,1 @@
+# read data catalog json file and create iceberg tables in s3

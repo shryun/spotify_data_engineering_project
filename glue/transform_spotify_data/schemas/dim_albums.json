@@ -1,0 +1,20 @@
+// Each JSON describes column names, types, primary keys, partition keys.
+// Useful for:
+// Validation (check if incoming data matches schema).
+// Schema evolution tracking (if you add new fields).
+// Feeding schema into Glue/Athena/Iceberg
+
+{
+  "album_id": "string",              // Spotify album ID (PK)
+  "album_name": "string",
+  "album_type": "string",            // e.g. "album", "single", "compilation"
+  "release_date": "date",
+  "release_date_precision": "string", // "year", "month", "day"
+  "total_tracks": "integer",
+  "available_markets": ["string"],    // list of ISO country codes
+  "album_uri": "string",
+  "album_spotify_url": "string",
+  "image_url": "string",
+  "image_height": "integer",
+  "image_width": "integer"
+}

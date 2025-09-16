@@ -1,0 +1,9 @@
+{
+  "artist_id": "string",             // Spotify artist ID (PK)
+  "artist_name": "string",
+  "artist_uri": "string",
+  "artist_spotify_url": "string",
+  "artist_type": "string",           // always "artist"
+  "genres": ["string"],              // optional (Spotify API /me/artists)
+  "popularity": "integer"            // optional (0-100, Spotify API)
+}
